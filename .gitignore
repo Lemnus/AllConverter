@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs/TheAllConverter/v15
+/TheAllConverter/obj
+/TheAllConverter/bin/Debug/netcoreapp2.1
