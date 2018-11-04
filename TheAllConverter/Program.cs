@@ -10,14 +10,16 @@ namespace TheAllConverter
         //Console.Beep(300, 500);
 
         static char prefSeparator = '.';
+        static bool isPeriodic = false;
+        static int periodStart = -1;
 
         static void Main(string[] args)
         {
             string[] splits;
-            string number= "1010";
-            string decimals="01";
-            int startingBase=2;
-            int endingBase=10;
+            string number= "0";
+            string decimals="2";
+            int startingBase=10;
+            int endingBase=2;
             bool goOn = true;
             string input;
             
@@ -42,11 +44,10 @@ namespace TheAllConverter
             } // User usage instructions
 
                                                                             // NI : Check if either base input is in correct format                              
-                                                                            // NI : Printing negative numbers
             do
             {
                 {
-                    ConsolePrinter("Please write a ", 4);
+                    ConsolePrinter("\nPlease write a ", 4);
                     ConsolePrinter("number ", 1); 
                     Console.Write("\n \n");
                 }
@@ -58,7 +59,7 @@ namespace TheAllConverter
                     if (input[0] == '-')
                     {
                         isNegative = true;
-                        input = input.Remove(0, 1);
+                        input = input.Remove(0, 1); 
                     }
                     else
                         isNegative = false;
@@ -86,20 +87,26 @@ namespace TheAllConverter
                         decimals = string.Empty;
                         prefSeparator = ' ';
                     }
+
+                    isPeriodic = false;
+                    periodStart = -1;
                 }
                            
-                if (number[0] == '0' && decimals[0]=='0')
+                if (number == "0" && decimals=="")
                         return;
-
-                Console.WriteLine("NToTen() prints: "+NToTen(number,decimals,2));
-
-
+                if(number[0]=='-')
+                    number = number.Remove(0, 1);
+                if(isNegative)
+                ConsolePrinter("Number set to -" + number + prefSeparator + decimals, 0);
+                else
+                    ConsolePrinter("Number set to " + number + prefSeparator + decimals, 0);
 
                 {
-                    ConsolePrinter("Please write a ", 4);
+                    ConsolePrinter("\nPlease write a ", 4);
                     ConsolePrinter("starting base ", 2);
                     Console.Write("\n \n");
                 }
+                inputSB:
                 input = Console.ReadLine();
                 input=input.ToLower();
                 if (!String.IsNullOrWhiteSpace(input))
@@ -108,15 +115,19 @@ namespace TheAllConverter
                    }
                     catch
                     {
-                        ConsolePrinter("Invalid number as starting base", 0);
+                        ConsolePrinter("\n Invalid number as starting base \n", 0);
+                        goto inputSB;
                     }
                     if (startingBase == 0)
                         return;
-                 {
-                    ConsolePrinter("Please write an ", 4);
+                ConsolePrinter("Starting base set to " + startingBase, 0);
+
+                {
+                    ConsolePrinter("\nPlease write an ", 4);
                     ConsolePrinter("ending base ", 3);          
                     Console.Write("\n \n");
                 }
+                inputEB:
                 input = Console.ReadLine();
                 input=input.ToLower();
                 if (!String.IsNullOrWhiteSpace(input))
@@ -128,15 +139,108 @@ namespace TheAllConverter
                     }                                        // Exception handling not actually implemented
                     catch
                     {
-                        ConsolePrinter("Invalid number as ending base", 0);
+                        ConsolePrinter("\n Invalid number as ending base \n", 0);
+                        goto inputEB;
                     }
                     if (endingBase == 0)
                         return;
+                ConsolePrinter("Ending base set to " + endingBase, 0);
+
+                string nb = number;
+                string dc = decimals;
+
+                if (isNegative)
+                    number = "-" + number;
+
+                if (startingBase != 10)
+                    (nb,dc)=NToTen(number, decimals,startingBase);
+                if(endingBase !=10)
+                {
+                    nb = TenToNNumber(nb, endingBase);
+                    dc = TenToNDecimals(dc, endingBase);
+                }
+                if (dc == "0")
+                    dc = "";
+
+                if (nb == "")
+                    nb = "0";
+
+                ConsolePrinter("\n \n \nThe number after base changes: \n \n", 0);
+                if(isNegative)
+                Console.WriteLine("-"+nb+prefSeparator+dc);
+                else
+                Console.WriteLine(nb+prefSeparator+dc);
+                Console.WriteLine("\n \n - - - - - - - - - - - - - - - - - - - - - \n \n");
+
             } while (goOn); 
   
         }
 
-        static string TenToN(string number, int endBase)  // Partial Ten to N: still not handling decimals
+        static string TenToNDecimals(string decimals, int endBase)
+        {
+            // take decimals and add string 0.
+            // keep multiplying with base til right side of "." is =0
+            // place each digit/letter from the left side in answerValues and then remove both the value and the dot
+            // repeat till decimals ==0 or they start repeating
+
+            char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+            char[] answerValues = new char[50];// [] of numbers left of separator
+            string[] answerHistory= new string[50];
+            bool goOn = true;
+            int counter = 0;
+
+            string numberToMultiply = "0." + decimals;
+            Decimal decNumberToMuliply = decimal.Parse(numberToMultiply);
+
+            do
+            {
+                counter++;
+                answerHistory[counter] = "" + decNumberToMuliply;
+                for(int i=1;i<counter;i++)
+                    if(answerHistory[i]==answerHistory[counter])
+                    {
+                        isPeriodic = true;
+                        goOn = false;
+                        periodStart = i;                          
+                    }             
+
+                decNumberToMuliply *= endBase;
+
+                if (decNumberToMuliply == 0)                                    
+                    break;
+                if (counter == 49)
+                    goOn = false;
+
+                numberToMultiply = "" + decNumberToMuliply;
+                string[] splits = new string[2];
+                splits = numberToMultiply.Split('.');
+                answerValues[counter] = digits[int.Parse(splits[0])];
+                numberToMultiply = "0."+splits[1];
+                decNumberToMuliply = decimal.Parse(numberToMultiply);
+                
+                                
+            } while (goOn);
+
+            string answer = "";
+
+            if(isPeriodic)
+            {
+                for (int i = 1; i <= counter; i++)
+                {
+                    if (i == periodStart)
+                        answer += "(";
+                    answer += answerValues[i];
+                }
+                answer += ")";
+            }
+            else
+            for (int i = 1; i <=counter; i++)
+                answer += answerValues[i];
+
+            return answer;
+        }
+
+        static string TenToNNumber(string number, int endBase)
         {
             char[] digits = { '0','1','2','3', '4', '5', '6', '7', '8', '9','a', 'b', 'c', 'd', 'e', 'f' };
             int[] rest = new int[50];
@@ -149,16 +253,14 @@ namespace TheAllConverter
             }
             catch
             {
-                ConsolePrinter("Error: Invalid number input",0);
+                ConsolePrinter("\n Error: Invalid number input",0);
                 return "";
             }
             while(changedN>0)
 
             {
                 i++;
-                Console.WriteLine("At i=" + i + " performing " + changedN + "%" + endBase);
-                rest[i] = changedN % endBase;
-                Console.WriteLine("Giving the rest" + rest[i]);            
+                rest[i] = changedN % endBase;           
                 changedN /= endBase;
             }            
             int index = i;
@@ -168,6 +270,7 @@ namespace TheAllConverter
                 i--;
             }
             string answerS = new string(answer);
+            answerS = answerS.Remove(index+1);
             return answerS;
         }
 
@@ -208,10 +311,6 @@ namespace TheAllConverter
                         case 'e': coDecimal[i] = 14; break;
                         case 'f': coDecimal[i] = 15; break;
                     }
-                //Console.WriteLine(decimals[i]);
-                //Console.WriteLine(coDecimal[i]);
-
-
                 i++;
             }
 
@@ -229,7 +328,7 @@ namespace TheAllConverter
                 sumaNb += (decimal)coNumber[i] * (decimal)PowerUp(startBase, number.Length-i-1);
                 i++;
             }
-            Console.WriteLine(sumaNb); // remove separator from Dec
+            //Console.WriteLine(sumaNb); // remove separator from Dec
             string answer = "" + sumaNb;
             string nbAnswer="0";
             string dcAnswer="0";
