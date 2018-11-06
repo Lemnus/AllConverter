@@ -12,6 +12,7 @@ namespace TheAllConverter
         static char prefSeparator = '.';
         static bool isPeriodic = false;
         static int periodStart = -1;
+        static bool valid = true;
 
         static void Main(string[] args)
         {
@@ -53,7 +54,9 @@ namespace TheAllConverter
                 }
                 input = Console.ReadLine();
                 input=input.ToLower();
-                                                        
+
+                valid = true;
+
                 if (!String.IsNullOrWhiteSpace(input))
                 {
                     if (input[0] == '-')
@@ -84,7 +87,7 @@ namespace TheAllConverter
                         decimals = splits[1];
                     else
                     {
-                        decimals = string.Empty;
+                        decimals = "";
                         prefSeparator = ' ';
                     }
 
@@ -110,9 +113,11 @@ namespace TheAllConverter
                 input = Console.ReadLine();
                 input=input.ToLower();
                 if (!String.IsNullOrWhiteSpace(input))
-                try{
+                    try{
                         startingBase = int.Parse(input);
-                   }
+                        if (startingBase > 16 || startingBase < 2)
+                            throw new Exception();
+                    }
                     catch
                     {
                         ConsolePrinter("\n Invalid number as starting base \n", 0);
@@ -134,8 +139,8 @@ namespace TheAllConverter
                     try
                     {                       
                         endingBase = int.Parse(input);
-                        //if (endingBase > 16)
-                        //    throw Exception e;
+                        if (endingBase > 16 || endingBase <2)
+                            throw new Exception();
                     }                                        // Exception handling not actually implemented
                     catch
                     {
@@ -160,17 +165,25 @@ namespace TheAllConverter
                     dc = TenToNDecimals(dc, endingBase);
                 }
                 if (dc == "0")
+                {
                     dc = "";
+                    prefSeparator = ' ';
+                }
 
                 if (nb == "")
                     nb = "0";
 
                 ConsolePrinter("\n \n \nThe number after base changes: \n \n", 0);
-                if(isNegative)
-                Console.WriteLine("-"+nb+prefSeparator+dc);
+                if (valid == true)
+                {
+                    if (isNegative)
+                        Console.WriteLine("-" + nb + prefSeparator + dc);
+                    else
+                        Console.WriteLine(nb + prefSeparator + dc);
+                    Console.WriteLine("\n \n - - - - - - - - - - - - - - - - - - - - - \n \n");
+                }
                 else
-                Console.WriteLine(nb+prefSeparator+dc);
-                Console.WriteLine("\n \n - - - - - - - - - - - - - - - - - - - - - \n \n");
+                    ConsolePrinter("\n \n \n Invalid number input \n \n \n", 2);
 
             } while (goOn); 
   
@@ -253,7 +266,7 @@ namespace TheAllConverter
             }
             catch
             {
-                ConsolePrinter("\n Error: Invalid number input",0);
+                ConsolePrinter("\n \n \n \n Error: Invalid number input",2);
                 return "";
             }
             while(changedN>0)
@@ -278,7 +291,7 @@ namespace TheAllConverter
         {
             int i = 0;
             int[] coNumber = new int[50];
-            int[] coDecimal = new int[50];
+            int[] coDecimal = new int[50];            
             while (i<number.Length)
             {
                 if (number[i] <= '9' && number[i] >= '0')
@@ -292,8 +305,12 @@ namespace TheAllConverter
                         case 'd': coNumber[i] = 13; break;
                         case 'e': coNumber[i] = 14; break;
                         case 'f': coNumber[i] = 15; break;
+                        default: valid = false; break;
                     }
+                if (coNumber[i] < startBase)
+                    valid = false;
                 i++;
+                
                 
             }
             i = 0;
