@@ -4,10 +4,6 @@ namespace TheAllConverter
 {
     class Program
     {
-        //string msg;
-        //System.Diagnostics.Process.Start(new ProcessStartInfo("cmd", $"/c start https://www.google.com/search?q={msg}"));
-
-        //Console.Beep(300, 500);
 
         static char prefSeparator = '.';
         static bool isPeriodic = false;
@@ -22,8 +18,7 @@ namespace TheAllConverter
             int startingBase=10;
             int endingBase=2;
             bool goOn = true;
-            string input;
-            
+            string input;           
             int separatorPoz = 4;
             bool isNegative = false;
 
@@ -35,10 +30,10 @@ namespace TheAllConverter
                 ConsolePrinter("without  decimals, negative or positive \n \n", 0);
                 ConsolePrinter(" 2) The " ,0);
                 ConsolePrinter("starting base" ,2);
-                ConsolePrinter(" (any whole number between 0 and 17) \n \n", 0);
+                ConsolePrinter(" (any whole number between 1 and 17) \n \n", 0);
                 ConsolePrinter(" 3) The " ,0);
                 ConsolePrinter("ending base" ,3);
-                ConsolePrinter(" (any whole number between 0 and 17) \n \n", 0);
+                ConsolePrinter(" (any whole number between 1 and 17) \n \n", 0);
                 ConsolePrinter(" The application keeps running until the user inputs a 0 \n \n" +
                                " Should the user input a whitespace (Enter, Spacebar), the last \n" +
                                " value for that specific field will be reused. \n \n", 0); 
@@ -109,20 +104,7 @@ namespace TheAllConverter
                     ConsolePrinter("starting base ", 2);
                     Console.Write("\n \n");
                 }
-                inputSB:
-                input = Console.ReadLine();
-                input=input.ToLower();
-                if (!String.IsNullOrWhiteSpace(input))
-                    try{
-                        startingBase = int.Parse(input);
-                        if (startingBase > 16 || startingBase < 2)
-                            throw new Exception();
-                    }
-                    catch
-                    {
-                        ConsolePrinter("\n Invalid number as starting base \n", 0);
-                        goto inputSB;
-                    }
+                ReadStartingBase(ref startingBase);              
                     if (startingBase == 0)
                         return;
                 ConsolePrinter("Starting base set to " + startingBase, 0);
@@ -132,21 +114,7 @@ namespace TheAllConverter
                     ConsolePrinter("ending base ", 3);          
                     Console.Write("\n \n");
                 }
-                inputEB:
-                input = Console.ReadLine();
-                input=input.ToLower();
-                if (!String.IsNullOrWhiteSpace(input))
-                    try
-                    {                       
-                        endingBase = int.Parse(input);
-                        if (endingBase > 16 || endingBase <2)
-                            throw new Exception();
-                    }                                        // Exception handling not actually implemented
-                    catch
-                    {
-                        ConsolePrinter("\n Invalid number as ending base \n", 0);
-                        goto inputEB;
-                    }
+                ReadEndingBase(ref endingBase);
                     if (endingBase == 0)
                         return;
                 ConsolePrinter("Ending base set to " + endingBase, 0);
@@ -187,6 +155,43 @@ namespace TheAllConverter
 
             } while (goOn); 
   
+        }
+
+        static void ReadStartingBase(ref int startingBase)
+        {
+            string input = Console.ReadLine();
+
+            input = input.ToLower();
+            if (!String.IsNullOrWhiteSpace(input))
+                try
+                {
+                    startingBase = int.Parse(input);
+                    if (startingBase > 16 || startingBase < 2)
+                        throw new Exception();
+                }
+                catch
+                {
+                    ConsolePrinter("\n Invalid number as starting base \n", 0);
+                    ReadStartingBase(ref startingBase);
+                }
+        }
+
+        static void ReadEndingBase(ref int endingBase)
+        {
+            string input = Console.ReadLine();
+            input = input.ToLower();
+            if (!String.IsNullOrWhiteSpace(input))
+                try
+                {
+                    endingBase = int.Parse(input);
+                    if (endingBase > 16 || endingBase < 2)
+                        throw new Exception();
+                }                                        // Exception handling not actually implemented
+                catch
+                {
+                    ConsolePrinter("\n Invalid number as ending base \n", 0);
+                    ReadEndingBase(ref endingBase);
+                }
         }
 
         static string TenToNDecimals(string decimals, int endBase)
@@ -307,7 +312,7 @@ namespace TheAllConverter
                         case 'f': coNumber[i] = 15; break;
                         default: valid = false; break;
                     }
-                if (coNumber[i] < startBase)
+                if (coNumber[i] > startBase)
                     valid = false;
                 i++;
                 
