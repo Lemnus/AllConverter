@@ -22,6 +22,15 @@ namespace TheAllConverter
             int separatorPoz = 4;
             bool isNegative = false;
 
+            //while(true)
+            //{
+            //    int ins = int.Parse(Console.ReadLine());
+            //    int inb = int.Parse(Console.ReadLine());
+            //    Console.WriteLine(AltPowerUp(ins, inb));
+
+            //}   //Testing for AltPowerUp()
+
+
             {
                 ConsolePrinter("This application takes 3 inputs: \n \n", 0);
                 ConsolePrinter(" 1) The ", 0);
@@ -95,7 +104,7 @@ namespace TheAllConverter
                 if(number[0]=='-')
                     number = number.Remove(0, 1);
                 if(isNegative)
-                ConsolePrinter("Number set to -" + number + prefSeparator + decimals, 0);
+                    ConsolePrinter("Number set to -" + number + prefSeparator + decimals, 0);
                 else
                     ConsolePrinter("Number set to " + number + prefSeparator + decimals, 0);
 
@@ -377,6 +386,18 @@ namespace TheAllConverter
                 i++;
             }
             return k;
+        }
+
+        static int AltPowerUp(int baza,int putere)
+        {
+            if (putere == 2)
+                return baza * baza;
+            if (putere == 1)
+                return baza;
+            if (putere % 2 == 0)
+                return AltPowerUp(baza*baza, putere / 2);
+            else
+                return AltPowerUp(baza*baza, putere / 2) * baza;
         }
 
         static void ConsolePrinter(string msg, int color)
